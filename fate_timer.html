@@ -1,0 +1,316 @@
+<!-- 
+  Poutine Smasher @ Sargatanas 
+  https://lalachievements.com/char/3357657/
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FFXIV FATE Timers</title>
+  <style>
+    :root {
+      --bg-color: #1e1e1e;
+      --text-color: #f0f0f0;
+    }
+    body.day {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    header {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      gap: 20px;
+    }
+    h1 {
+      margin-bottom: 0.5em;
+    }
+    #eorzea-time {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--text-color);
+    }
+    input, button, select {
+      padding: 10px;
+      margin: 5px;
+      font-size: 1rem;
+    }
+    .timer-container {
+      border: 1px solid var(--text-color);
+      padding: 10px;
+      margin: 10px 0;
+      width: 320px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .timer-container.warning {
+      border: 2px solid red;
+      box-shadow: 0 0 10px red;
+      background-color: rgba(255, 0, 0, 0.1);
+    }
+    .timer-title {
+      font-size: 1rem;
+      width: 90%;
+      text-align: center;
+      margin-bottom: 5px;
+      border: none;
+      background: transparent;
+      color: var(--text-color);
+      font-weight: bold;
+    }
+    .timer-title:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .timer-display {
+      font-size: 1.5rem;
+      margin: 10px 0;
+    }
+    #timers {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #notification-popup {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #333;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FFXIV FATE Timers</h1>
+    <div id="eorzea-time">ET: 00:00</div>
+  </header>
+
+  <input type="text" id="instanceInput" placeholder="Enter Instance Name">
+  <label for="positionInput">Select Position:</label>
+  <select id="positionInput"><option>North</option><option>South</option></select>
+  <div id="notification-popup" style="display:none;"><p id="notification-message"></p></div>
+  <button onclick="addTimer()">Add Timer</button></button>
+  <button onclick="exportTimers()">Export Timers</button>
+  <button onclick="document.getElementById('importFile').click()">Import Timers</button>
+  <input type="file" id="importFile" style="display:none" accept="application/json" onchange="importTimers(event)"></button>
+  <div id="timers"></div>
+  <img alt="South Horn Pot Coffers Color Coded.jpg"
+    src=".\800px-South_Horn_Pot_Coffers_Color_Coded.jpg" decoding="async" width="800"
+    height="400" data-file-width="2048" data-file-height="1024">
+  <button id="themeToggle" onclick="toggleTheme()">Toggle Day/Night Theme</button>
+
+<script>
+const FATE_DURATION = 1800;
+let timers = {};
+
+function updateEorzeaTime() {
+  const now = Date.now();
+  const eMillis = now * 20.5714285714;
+  const e = new Date(eMillis);
+  const h = String(e.getUTCHours()).padStart(2,'0');
+  const m = String(e.getUTCMinutes()).padStart(2,'0');
+  document.getElementById('eorzea-time').textContent = `ET: ${h}:${m}`;
+}
+setInterval(updateEorzeaTime,1000);
+updateEorzeaTime();
+
+function formatTime(s){return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
+function positionLabel(p){return p+" in";}
+
+function saveTimers(){
+  const out={};
+  for(const id in timers){
+    const t=timers[id];
+    out[id]={name:t.name,position:t.position,endTime:t.endTime||null,running:t.running};
+  }
+  localStorage.setItem("fateTimers",JSON.stringify(out));
+}
+
+function loadTimers(){
+  const saved=localStorage.getItem("fateTimers");
+  if(!saved) return;
+  const data=JSON.parse(saved);
+  for(const id in data){
+    const d=data[id];
+    let remaining=FATE_DURATION;
+    if(d.endTime && d.running){remaining=Math.max(0,Math.floor((d.endTime-Date.now())/1000));}
+    createTimerElement(id,d.name,d.position||"North",remaining,d.running);
+  }
+}
+
+function updateDisplay(id){
+  const t=timers[id];
+  const disp=document.getElementById(`display-${id}`);
+  const box=document.getElementById(`timer-${id}`);
+  if(!disp) return;
+  disp.textContent = positionLabel(t.position)+" "+formatTime(t.remaining);
+  if(t.remaining<=300) box.classList.add("warning"); else box.classList.remove("warning");
+}
+
+function startTimer(id){
+  const t=timers[id];
+  if(t.interval) clearInterval(t.interval);
+  t.running=true;
+  t.endTime=Date.now()+t.remaining*1000;
+  t.interval=setInterval(()=>{
+    t.remaining=Math.max(0,Math.floor((t.endTime-Date.now())/1000));
+    updateDisplay(id);
+    if(t.remaining<=0){
+      clearInterval(t.interval);
+      t.running=false;
+      swapPosition(id,false);
+      showNotification(`Pots in ${t.position} "${t.name}" should have respawned!`);
+      startNewCycle(id);
+    }
+    saveTimers();
+  },1000);
+  updateDisplay(id); saveTimers();
+}
+
+function stopTimer(id){
+  const t=timers[id];
+  if(t.interval) clearInterval(t.interval);
+  t.running=false;
+  t.interval=null;
+  t.endTime=null;
+  saveTimers();
+}
+
+function adjustTimer(id,delta){
+  const t=timers[id];
+  t.remaining=Math.max(0,t.remaining+delta);
+  if(t.running){t.endTime=Date.now()+t.remaining*1000;}
+  updateDisplay(id);
+  saveTimers();
+}
+
+function startNewCycle(id){
+  const t=timers[id];
+  t.remaining=FATE_DURATION;
+  t.endTime=Date.now()+FATE_DURATION*1000;
+  t.running=true;
+  updateDisplay(id);
+  saveTimers();
+  startTimer(id);
+}
+
+function swapPosition(id,save=true){
+  const t=timers[id];
+  t.position = t.position==="North"?"South":"North";
+  if(save){updateDisplay(id); saveTimers();}
+}
+
+function resetTimer(id){
+  const t=timers[id];
+  clearInterval(t.interval);
+  t.remaining=FATE_DURATION;
+  t.endTime=null;
+  t.running=false;
+  updateDisplay(id);
+  saveTimers();
+  startTimer(id);
+}
+
+function deleteTimer(id){
+  const t=timers[id];
+  clearInterval(t?.interval);
+  delete timers[id];
+  document.getElementById(`timer-${id}`)?.remove();
+  saveTimers();
+}
+
+function renameTimer(id,n){timers[id].name=n.trim(); saveTimers();}
+
+function createTimerElement(id,name,pos,remaining,run){
+  const box=document.createElement("div");
+  box.className="timer-container";
+  box.id=`timer-${id}`;
+  box.innerHTML=`
+    <input class="timer-title" id="title-${id}" value="${name}" onchange="renameTimer('${id}',this.value)">
+    <div id="display-${id}" class="timer-display">${positionLabel(pos)} ${formatTime(remaining)}</div>
+    <button onclick="startTimer('${id}')">Start</button>
+    <button onclick="stopTimer('${id}')">Stop</button>
+    <button onclick="swapPosition('${id}')">Toggle</button>
+    <button onclick="resetTimer('${id}')">Reset</button>
+    <button onclick="deleteTimer('${id}')">Delete</button><br>
+    <button onclick="adjustTimer('${id}',60)">+1 min</button>
+    <button onclick="adjustTimer('${id}',-60)">-1 min</button>
+  `;
+
+  document.getElementById("timers").appendChild(box);
+  timers[id]={name,remaining,position:pos,interval:null,running:run,endTime:null};
+  updateDisplay(id);
+  if(run && remaining>0) startTimer(id);
+}
+
+function addTimer(){
+  const name=document.getElementById("instanceInput").value.trim();
+  const pos=document.getElementById("positionInput").value;
+  if(!name) return alert("Please enter an instance name.");
+  const id="fate_"+Date.now();
+  createTimerElement(id,name,pos,FATE_DURATION,false);
+  saveTimers();
+  document.getElementById("instanceInput").value="";
+}
+
+function toggleTheme(){
+  const t=document.body.className==="day"?"":"day";
+  document.body.className=t;
+  localStorage.setItem("theme",t);
+}
+(function(){const t=localStorage.getItem("theme"); if(t) document.body.className=t;})();
+
+function showNotification(msg){
+  const n=document.getElementById('notification-popup');
+  const m=document.getElementById('notification-message');
+  m.textContent=msg;
+  n.style.display='block';
+  setTimeout(()=>n.style.opacity='1',10);
+  setTimeout(()=>{
+    n.style.opacity='0';
+    setTimeout(()=>n.style.display='none',500);
+  },3000);
+}
+
+function exportTimers(){
+  const data = localStorage.getItem('fateTimers') || '{}';
+  const blob = new Blob([data],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='fate_timers.json';
+  a.click();
+}
+function importTimers(evt){
+  const file=evt.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const json=JSON.parse(e.target.result);
+      localStorage.setItem('fateTimers',JSON.stringify(json));
+      location.reload();
+    }catch(err){alert('Invalid JSON file');}
+  };
+  reader.readAsText(file);
+}
+loadTimers();
+</script>
+</body>
+</html>
