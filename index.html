@@ -141,7 +141,7 @@ setInterval(updateEorzeaTime,1000);
 updateEorzeaTime();
 
 function formatTime(s){return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
-function positionLabel(p){return p+" in";}
+function positionLabel(p){return p+" -";}
 
 function saveTimers(){
   const out={};
@@ -185,7 +185,7 @@ function startTimer(id){
       clearInterval(t.interval);
       t.running=false;
       showNotification(`Pots in ${t.position} "${t.name}" should have respawned!`);
-      swapPosition(id,false);
+      swapPosition(id,true);
       startNewCycle(id);
     }
     saveTimers();
