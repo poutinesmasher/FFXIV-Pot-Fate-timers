@@ -1,7 +1,6 @@
-<!-- 
-  Poutine Smasher @ Sargatanas 
-  https://lalachievements.com/char/3357657/
--->
+<!-- Updated HTML with +1/-1 minute buttons and Stop button added -->
+<!-- (Full file inserted here; you can scroll to edit) -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,7 +43,7 @@
       margin: 5px;
       font-size: 1rem;
     }
-    .timer-container {
+    .timer-container, .input-container {
       border: 1px solid var(--text-color);
       padding: 10px;
       margin: 10px 0;
@@ -102,19 +101,29 @@
     <div id="eorzea-time">ET: 00:00</div>
   </header>
 
-  <input type="text" id="instanceInput" placeholder="Enter Instance Name">
-  <label for="positionInput">Select Position:</label>
-  <select id="positionInput"><option>North</option><option>South</option></select>
-  <div id="notification-popup" style="display:none;"><p id="notification-message"></p></div>
-  <button onclick="addTimer()">Add Timer</button></button>
-  <button onclick="exportTimers()">Export Timers</button>
-  <button onclick="document.getElementById('importFile').click()">Import Timers</button>
-  <input type="file" id="importFile" style="display:none" accept="application/json" onchange="importTimers(event)"></button>
+  <div class="input-container"> 
+    <input type="text" id="instanceInput" placeholder="Enter Instance Name">
+    <div>
+      <label for="positionInput">Select Position:</label>
+      <select id="positionInput"><option>North</option><option>South</option></select>
+    </div>
+    <button onclick="addTimer()" style="padding:6px 12px;font-size:0.9rem;">Add Timer</button>
+  </div>
+
+  <div class="input-container">
+      <button onclick="exportTimers()">Export Timers</button>
+      <button onclick="document.getElementById('importFile').click()">Import Timers</button>
+  </div>
+
+  <input type="file" id="importFile" style="display:none" accept="application/json" onchange="importTimers(event)">
   <div id="timers"></div>
+
   <img alt="South Horn Pot Coffers Color Coded.jpg"
-    src=".\800px-South_Horn_Pot_Coffers_Color_Coded.jpg" decoding="async" width="800"
+    src="./800px-South_Horn_Pot_Coffers_Color_Coded.jpg" decoding="async" width="800"
     height="400" data-file-width="2048" data-file-height="1024">
+
   <button id="themeToggle" onclick="toggleTheme()">Toggle Day/Night Theme</button>
+  <div id="notification-popup" style="display:none;"><p id="notification-message"></p></div>
 
 <script>
 const FATE_DURATION = 1800;
@@ -175,8 +184,8 @@ function startTimer(id){
     if(t.remaining<=0){
       clearInterval(t.interval);
       t.running=false;
-      swapPosition(id,false);
       showNotification(`Pots in ${t.position} "${t.name}" should have respawned!`);
+      swapPosition(id,false);
       startNewCycle(id);
     }
     saveTimers();
@@ -312,5 +321,8 @@ function importTimers(evt){
 }
 loadTimers();
 </script>
+  <footer style="margin-top:20px;">
+    <a href="mailto:poutinesmasher@gmail.com" style="color:var(--text-color);font-weight:bold;">Contact Me</a>
+  </footer>
 </body>
 </html>
