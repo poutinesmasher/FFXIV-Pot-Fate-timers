@@ -43,7 +43,7 @@
       margin: 5px;
       font-size: 1rem;
     }
-    .timer-container, .input-container {
+    .timer-container,  .input-container {
       border: 1px solid var(--text-color);
       padding: 10px;
       margin: 10px 0;
@@ -101,29 +101,32 @@
     <div id="eorzea-time">ET: 00:00</div>
   </header>
 
-  <div class="input-container"> 
-    <input type="text" id="instanceInput" placeholder="Enter Instance Name">
-    <div>
-      <label for="positionInput">Select Position:</label>
-      <select id="positionInput"><option>North</option><option>South</option></select>
-    </div>
-    <button onclick="addTimer()" style="padding:6px 12px;font-size:0.9rem;">Add Timer</button>
-  </div>
+  <input type="text" id="instanceInput" placeholder="Enter Instance Name">
+  <label for="positionInput">Select Position:</label>
+  <select id="positionInput"><option>North</option><option>South</option></select>
+  <div id="notification-popup" style="display:none;"><p id="notification-message"></p></div>
+  <button onclick="addTimer()" style="padding:6px 12px;font-size:0.9rem;">Add Timer</button>
+  <details style="margin:10px 0; width:320px;">
+    <summary style="cursor:pointer; font-weight:bold;">Import / Export Timers</summary>
+    <textarea id="jsonArea" style="width:100%; height:120px; margin-top:10px; background:var(--bg-color); color:var(--text-color); border:1px solid var(--text-color);"></textarea>
+    <br>
 
   <div class="input-container">
-      <button onclick="exportTimers()">Export Timers</button>
-      <button onclick="document.getElementById('importFile').click()">Import Timers</button>
+    <button onclick="exportToTextarea()">Export to Textarea</button>
+    <button onclick="importFromTextarea()">Import from Textarea</button>
+    <button onclick="copyTextarea()">Copy to Clipboard</button>
   </div>
 
-  <input type="file" id="importFile" style="display:none" accept="application/json" onchange="importTimers(event)">
-  <div id="timers"></div>
+
+  </details>
+
+<div id="timers"></div>
 
   <img alt="South Horn Pot Coffers Color Coded.jpg"
     src="./800px-South_Horn_Pot_Coffers_Color_Coded.jpg" decoding="async" width="800"
     height="400" data-file-width="2048" data-file-height="1024">
 
   <button id="themeToggle" onclick="toggleTheme()">Toggle Day/Night Theme</button>
-  <div id="notification-popup" style="display:none;"><p id="notification-message"></p></div>
 
 <script>
 const FATE_DURATION = 1800;
@@ -141,7 +144,7 @@ setInterval(updateEorzeaTime,1000);
 updateEorzeaTime();
 
 function formatTime(s){return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
-function positionLabel(p){return p+" -";}
+function positionLabel(p){return p+" in";}
 
 function saveTimers(){
   const out={};
@@ -184,8 +187,8 @@ function startTimer(id){
     if(t.remaining<=0){
       clearInterval(t.interval);
       t.running=false;
+      swapPosition(id,false);
       showNotification(`Pots in ${t.position} "${t.name}" should have respawned!`);
-      swapPosition(id,true);
       startNewCycle(id);
     }
     saveTimers();
@@ -318,6 +321,23 @@ function importTimers(evt){
     }catch(err){alert('Invalid JSON file');}
   };
   reader.readAsText(file);
+}
+function exportToTextarea(){
+  document.getElementById('jsonArea').value = localStorage.getItem('fateTimers') || '{}';
+}
+function importFromTextarea(){
+  const text = document.getElementById('jsonArea').value.trim();
+  try{
+    const json = JSON.parse(text);
+    localStorage.setItem('fateTimers', JSON.stringify(json));
+    location.reload();
+  }catch(e){ alert('Invalid JSON'); }
+}
+function copyTextarea(){
+  const ta=document.getElementById('jsonArea');
+  ta.select();
+  document.execCommand('copy');
+  alert('JSON copied to clipboard');
 }
 loadTimers();
 </script>
