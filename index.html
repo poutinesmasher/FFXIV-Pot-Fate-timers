@@ -93,6 +93,9 @@
       opacity: 0;
       transition: opacity 0.5s ease-in-out;
     }
+    .whiteLink {
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -119,7 +122,6 @@
     <div class="input-container" style="width: fit-content;">
       <textarea id="jsonArea" style="width: 700px; height:120px; background:var(--bg-color); color:var(--text-color); border:1px solid var(--text-color);"></textarea>
 
-
       <button onclick="exportToTextarea()">Export to Textarea</button>
       <button onclick="copyTextarea()">Copy to Clipboard</button>
       <button onclick="importFromTextarea()">Import from Textarea</button>
@@ -131,6 +133,7 @@
   <img alt="South Horn Pot Coffers Color Coded.jpg"
     src="./800px-South_Horn_Pot_Coffers_Color_Coded.jpg" decoding="async" width="800"
     height="400" data-file-width="2048" data-file-height="1024">
+  <a class="whiteLink "href="https://consolegameswiki.com/wiki/Persistent_Pot" target="_blank">Map source: https://consolegameswiki.com/wiki/Persistent_Pot</a>
 
   <button id="themeToggle" onclick="toggleTheme()">Toggle Day/Night Theme</button>
 
