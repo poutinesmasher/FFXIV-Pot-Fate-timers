@@ -122,8 +122,7 @@
     <div class="input-container" style="width: fit-content;">
       <textarea id="jsonArea" style="width: 700px; height:120px; background:var(--bg-color); color:var(--text-color); border:1px solid var(--text-color);"></textarea>
 
-      <button onclick="exportToTextarea()">Export to Textarea</button>
-      <button onclick="copyTextarea()">Copy to Clipboard</button>
+      <button onclick="exportToTextarea()">Export to Clipboard</button>
       <button onclick="importFromTextarea()">Import from Textarea</button>
     </div>
   </details>
@@ -327,12 +326,14 @@ function importTimers(evt){
       const json=JSON.parse(e.target.result);
       localStorage.setItem('fateTimers',JSON.stringify(json));
       location.reload();
-    }catch(err){alert('Invalid JSON file');}
+    }catch(err){alert('Invalid JSON: check if you copied correctly');}
   };
   reader.readAsText(file);
 }
 function exportToTextarea(){
   document.getElementById('jsonArea').value = localStorage.getItem('fateTimers') || '{}';
+
+  copyTextarea()
 }
 function importFromTextarea(){
   const text = document.getElementById('jsonArea').value.trim();
@@ -346,7 +347,7 @@ function copyTextarea(){
   const ta=document.getElementById('jsonArea');
   ta.select();
   document.execCommand('copy');
-  alert('JSON copied to clipboard');
+  alert('Exported to clipboard, now just paste it in chat');
 }
 loadTimers();
 </script>
