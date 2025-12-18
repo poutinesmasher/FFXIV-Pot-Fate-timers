@@ -14,9 +14,9 @@
       </header>
       
       <div class="input-container">
-        <label for="instanceInput"> You can paste linked info here or enter a name to identify your instance </label>
+        <label for="instanceInput"> You can paste shared info here or enter a name to identify your instance </label>
         <br>
-        <input type="text" class="instanceInput" id="instanceInput" placeholder="Enter linked infos / instance Name">
+        <input type="text" class="instanceInput" id="instanceInput" placeholder="Enter shared infos / instance name">
         <div>
             <label for="positionInput">Select Position:</label>
             <select id="positionInput">
@@ -217,7 +217,7 @@
          <button onclick="stopTimer('${id}')">Stop</button><br>
          <button onclick="swapPosition('${id}')">Toggle Position</button>
          <button onclick="resetTimer('${id}')">Reset</button>
-         <button onclick="linkTimer('${id}')">Link this timer</button>
+         <button onclick="linkTimer('${id}')">Share Timer</button>
          <button onclick="deleteTimer('${id}')">Delete</button><br>
          <button onclick="adjustTimer('${id}',60)">+1 min</button>
          <button onclick="adjustTimer('${id}',-60)">-1 min</button><br>
@@ -378,7 +378,7 @@
             style="color:var(--text-color); font-weight:bold;">
             <h2>By Poutine Smasher @ Sargatanas</h2>
          </a>
-         V.1.12
+         V.1.13
          <br>
          Last updated: 2025-12-17
       </footer>
