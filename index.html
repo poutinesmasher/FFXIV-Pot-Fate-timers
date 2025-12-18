@@ -31,7 +31,7 @@
          <p id="notification-message"></p>
       </div>
       <details style="margin:10px 0;width:320px;display: flex;flex-direction: column;align-items: center;">
-         <summary style="margin:10px 0;cursor:pointer;font-weight:bold;text-align: center;">Import / Export Timers</summary>
+         <summary style="margin:10px 0;cursor:pointer;font-weight:bold;text-align: center;">Import / Export Multiple Timers</summary>
          <br>
          <div class="input-container" style="width: fit-content;">
             <textarea id="jsonArea"
@@ -212,9 +212,10 @@
          <input class="timer-title" id="title-${id}" value="${name}" onchange="renameTimer('${id}',this.value)">
          <div id="display-${id}" class="timer-display">${positionLabel(pos)} ${formatTime(remaining)}</div>
          <button onclick="startTimer('${id}')">Start</button>
-         <button onclick="stopTimer('${id}')">Stop</button>
-         <button onclick="swapPosition('${id}')">Toggle</button>
+         <button onclick="stopTimer('${id}')">Stop</button><br>
+         <button onclick="swapPosition('${id}')">Toggle Position</button>
          <button onclick="resetTimer('${id}')">Reset</button>
+         <button onclick="linkTimer('${id}')">Link this timer</button>
          <button onclick="deleteTimer('${id}')">Delete</button><br>
          <button onclick="adjustTimer('${id}',60)">+1 min</button>
          <button onclick="adjustTimer('${id}',-60)">-1 min</button><br>
@@ -227,16 +228,46 @@
            updateDisplay(id);
            if (run && remaining > 0) startTimer(id);
          }
+
+         function linkTimer(id) {
+          const t = timers[id];
+          // Calculate the absolute timestamp in milliseconds
+          const absoluteRespawnTime = Date.now() + (t.remaining * 1000);
+          
+          // Format: Instance Name | Position | Timestamp
+          const message = `${t.name} | ${t.position} | ${absoluteRespawnTime}`;
+          
+          navigator.clipboard.writeText(message).then(() => {
+            showNotification("Timer data copied to clipboard!");
+          }).catch(err => {
+            alert("Failed to copy: " + err);
+          });
+}
          
           function addTimer() {
-            const name = document.getElementById("instanceInput").value.trim();
-            const pos = document.getElementById("positionInput").value;
-            const rawTimestamp = document.getElementById("timestampInput").value.trim();
+            let name = document.getElementById("instanceInput").value.trim();
+            let pos = document.getElementById("positionInput").value;
+            let rawTimestamp = document.getElementById("timestampInput").value.trim();
+            let durationSeconds = FATE_DURATION;
+            let shouldAutoStart = false;
+
+            // Check if the input is a "Link" (contains the pipe '|' symbol)
+            if (name.includes('|')) {
+              const parts = name.split('|').map(p => p.trim());
+              if (parts.length === 3) {
+                name = parts[0]; // Instance Name
+                pos = parts[1];  // Position
+                const endTime = parseInt(parts[2], 10); // Timestamp
+                
+                const diff = Math.floor((endTime - Date.now()) / 1000);
+                if (diff > 0) {
+                  durationSeconds = diff;
+                  shouldAutoStart = true;
+                }
+              }
+            }
             
             if (!name) return alert("Please enter an instance name.");
-
-            let durationSeconds = FATE_DURATION; // Default 1800
-            let shouldAutoStart = false;
 
             if (rawTimestamp) {
               const endTime = parseInt(rawTimestamp, 10);
@@ -345,7 +376,7 @@
             style="color:var(--text-color); font-weight:bold;">
             <h2>By Poutine Smasher @ Sargatanas</h2>
          </a>
-         V.1.10
+         V.1.11
          <br>
          Last updated: 2025-12-17
       </footer>
