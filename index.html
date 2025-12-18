@@ -14,15 +14,17 @@
       </header>
       
       <div class="input-container">
-         <input type="text" id="instanceInput" placeholder="Enter Instance Name">
-         <div>
+        <input type="text" id="instanceInput" placeholder="Enter Instance Name">
+        <div>
             <label for="positionInput">Select Position:</label>
             <select id="positionInput">
-               <option>North</option>
-               <option>South</option>
+              <option>North</option>
+              <option>South</option>
             </select>
-         </div>
-         <button onclick="addTimer()" style="padding:6px 12px;font-size:0.9rem;">Add Timer</button>
+            <input type="number" id="timestampInput" placeholder="Timestamp (ms) - Optional" style="width: 200px;">
+        </div>
+
+        <button onclick="addTimer()" style="padding:6px 12px;font-size:0.9rem;">Add Timer</button>
       </div>
 
       <div id="notification-popup" style="display:none;">
@@ -226,15 +228,45 @@
            if (run && remaining > 0) startTimer(id);
          }
          
-         function addTimer() {
-           const name = document.getElementById("instanceInput").value.trim();
-           const pos = document.getElementById("positionInput").value;
-           if (!name) return alert("Please enter an instance name.");
-           const id = "fate_" + Date.now();
-           createTimerElement(id, name, pos, FATE_DURATION, false);
-           saveTimers();
-           document.getElementById("instanceInput").value = "";
-         }
+          function addTimer() {
+            const name = document.getElementById("instanceInput").value.trim();
+            const pos = document.getElementById("positionInput").value;
+            const rawTimestamp = document.getElementById("timestampInput").value.trim();
+            
+            if (!name) return alert("Please enter an instance name.");
+
+            let durationSeconds = FATE_DURATION; // Default 1800
+            let shouldAutoStart = false;
+
+            if (rawTimestamp) {
+              const endTime = parseInt(rawTimestamp, 10);
+              const now = Date.now();
+              
+              // Calculate remaining time based on the timestamp
+              if (!isNaN(endTime)) {
+                const diff = Math.floor((endTime - now) / 1000);
+                
+                if (diff > 0) {
+                  durationSeconds = diff;
+                  shouldAutoStart = true; // Resume the timer if the timestamp is in the future
+                } else {
+                  // If the timestamp is in the past, we assume a new cycle is needed
+                  durationSeconds = FATE_DURATION;
+                }
+              }
+            }
+
+            const id = "fate_" + Date.now();
+            
+            // Create the timer with the calculated duration
+            createTimerElement(id, name, pos, durationSeconds, shouldAutoStart);
+            
+            saveTimers();
+            
+            // Reset inputs
+            document.getElementById("instanceInput").value = "";
+            document.getElementById("timestampInput").value = "";
+          }
          
          function toggleTheme() {
            const t = document.body.className === "day" ? "" : "day";
@@ -313,7 +345,7 @@
             style="color:var(--text-color); font-weight:bold;">
             <h2>By Poutine Smasher @ Sargatanas</h2>
          </a>
-         V.1.09
+         V.1.10
          <br>
          Last updated: 2025-12-17
       </footer>

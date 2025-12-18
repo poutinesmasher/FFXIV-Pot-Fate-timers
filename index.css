@@ -35,7 +35,7 @@
          select {
          padding: 10px;
          margin: 5px;
-         font-size: 1rem;
+         font-size: .8rem;
          }
          .timer-container,
          .input-container {
