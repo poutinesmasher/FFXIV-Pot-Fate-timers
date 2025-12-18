@@ -3,102 +3,10 @@
    <head>
       <meta charset="UTF-8">
       <title>FFXIV POT FATE Timers</title>
-      <style>
-         :root {
-         --bg-color: #1e2330;
-         --text-color: #f0f0f0;
-         }
-         body.day {
-         --bg-color: #ffffff;
-         --text-color: #000000;
-         }
-         body {
-         background-color: var(--bg-color);
-         color: var(--text-color);
-         font-family: Roboto, sans-serif;
-         display: flex;
-         flex-direction: column;
-         align-items: center;
-         padding: 20px;
-         }
-         header {
-         display: flex;
-         justify-content: center;
-         align-items: center;
-         flex-direction: column;
-         }
-
-         h1 {
-          margin-bottom: 0.5em;
-         }
-         #eorzea-time {
-         font-size: 1.2rem;
-         font-weight: bold;
-         color: var(--text-color);
-         }
-         input,
-         button,
-         select {
-         padding: 10px;
-         margin: 5px;
-         font-size: 1rem;
-         }
-         .timer-container,
-         .input-container {
-         border: 1px solid var(--text-color);
-         padding: 10px;
-         margin: 10px 0;
-         width: 320px;
-         text-align: center;
-         transition: all 0.3s ease;
-         }
-         .timer-container.warning {
-         border: 2px solid red;
-         box-shadow: 0 0 10px red;
-         background-color: rgba(255, 0, 0, 0.1);
-         }
-         .timer-title {
-         font-size: 1rem;
-         width: 90%;
-         text-align: center;
-         margin-bottom: 5px;
-         border: none;
-         background: transparent;
-         color: var(--text-color);
-         font-weight: bold;
-         }
-         .timer-title:focus {
-         outline: none;
-         background: rgba(255, 255, 255, 0.05);
-         }
-         .timer-display {
-         font-size: 1.5rem;
-         margin: 10px 0;
-         }
-         #timers {
-         display: flex;
-         flex-direction: row;
-         flex-wrap: wrap;
-         justify-content: center;
-         }
-         #notification-popup {
-         position: fixed;
-         bottom: 20px;
-         right: 20px;
-         background-color: #333;
-         color: white;
-         padding: 15px 25px;
-         border-radius: 5px;
-         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-         z-index: 1000;
-         opacity: 0;
-         transition: opacity 0.5s ease-in-out;
-         }
-         .whiteLink {
-         color: white;
-         }
-      </style>
+      <link rel="icon" href="./favicon.ico" type="image/svg+xml">
+      <link rel="stylesheet" href="index.css">
    </head>
+
    <body>
       <header>
          <h1>FFXIV POT FATE Timers</h1>
@@ -405,7 +313,7 @@
             style="color:var(--text-color); font-weight:bold;">
             <h2>By Poutine Smasher @ Sargatanas</h2>
          </a>
-         V.1.08
+         V.1.09
          <br>
          Last updated: 2025-12-17
       </footer>
