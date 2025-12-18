@@ -212,17 +212,19 @@
            box.id = `timer-${id}`;
            box.innerHTML = `
          <input class="timer-title" id="title-${id}" value="${name}" onchange="renameTimer('${id}',this.value)">
+                 
+
          <div id="display-${id}" class="timer-display">${positionLabel(pos)} ${formatTime(remaining)}</div>
          <button onclick="startTimer('${id}')">Start</button>
-         <button onclick="stopTimer('${id}')">Stop</button><br>
+         <button onclick="stopTimer('${id}')">Stop</button>
+         <button onclick="resetTimer('${id}')">Reset</button><br>
          <button onclick="swapPosition('${id}')">Toggle Position</button>
-         <button onclick="resetTimer('${id}')">Reset</button>
-         <button onclick="linkTimer('${id}')">Share Timer</button>
-         <button onclick="deleteTimer('${id}')">Delete</button><br>
+         <button onclick="linkTimer('${id}')">Share Timer</button><br>
          <button onclick="adjustTimer('${id}',60)">+1 min</button>
          <button onclick="adjustTimer('${id}',-60)">-1 min</button><br>
          <button onclick="adjustTimer('${id}',5)">+5 sec</button>
-         <button onclick="adjustTimer('${id}',-5)">-5 sec</button>
+         <button onclick="adjustTimer('${id}',-5)">-5 sec</button><br>
+         <button onclick="deleteTimer('${id}')">Delete</button>
          `;
          
            document.getElementById("timers").appendChild(box);
@@ -378,7 +380,7 @@
             style="color:var(--text-color); font-weight:bold;">
             <h2>By Poutine Smasher @ Sargatanas</h2>
          </a>
-         V.1.13 
+         V.1.14
          <br>
          Last updated: 2025-12-17
       </footer>
